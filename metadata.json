@@ -1,0 +1,6 @@
+{
+  "name": "ECONASE",
+  "description": "Alta perfumería minimalista ECONASE con fragancias de autor, notas olfativas singulares y diseño exclusivo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
