@@ -67,11 +67,12 @@ export const ProductDetailPage: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-[#F7F4ED] via-[#EFECE3] to-[#E8E3D8] opacity-90" />
 
           {/* Badges */}
-          <div className="absolute top-4 sm:top-6 inset-x-4 sm:inset-x-6 z-10 flex items-center justify-between gap-2 flex-wrap">
-            <span className="px-3 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-medium tracking-widest uppercase bg-white/90 backdrop-blur-xs text-[#474039] rounded-full border border-[#DDD6CB]">
+          <div className="absolute top-4 sm:top-6 inset-x-4 sm:inset-x-6 z-20 flex items-center justify-between gap-2 flex-wrap pointer-events-none">
+            <span className="shrink-0 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-medium tracking-widest uppercase bg-white/95 backdrop-blur-md text-[#474039] rounded-full border border-[#DDD6CB] shadow-2xs whitespace-nowrap">
               {product.volume} · Extrait de Parfum
             </span>
-            <span className="px-3 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-800 bg-white/90 backdrop-blur-xs rounded-full border border-[#DDD6CB]">
+            <span className="shrink-0 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-800 bg-white/95 backdrop-blur-md rounded-full border border-[#DDD6CB] shadow-2xs whitespace-nowrap flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block shrink-0" />
               DISPONIBLE
             </span>
           </div>

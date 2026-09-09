@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { SearchBar } from '../../components/search/SearchBar';
 import { CatalogGrid } from '../../components/catalog/CatalogGrid';
 import { useCatalog } from '../../hooks/useCatalog';
@@ -11,9 +12,50 @@ type OlfactoryFamily =
   | 'CUERO & RESINAS NOBLES';
 
 export const CatalogPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const familyFromUrl = searchParams.get('familia');
+
   const { products, searchQuery, setSearchQuery, clearSearch, isLoading } = useCatalog();
   const { addToCart } = useCart();
-  const [selectedFamily, setSelectedFamily] = useState<OlfactoryFamily>('TODAS');
+  const [selectedFamily, setSelectedFamily] = useState<OlfactoryFamily>(() => {
+    if (familyFromUrl) {
+      const decoded = decodeURIComponent(familyFromUrl).toUpperCase();
+      if (
+        decoded === 'AMADERADO & ESPECIADO' ||
+        decoded === 'CÍTRICO & FLORAL BLANCO' ||
+        decoded === 'CUERO & RESINAS NOBLES'
+      ) {
+        return decoded as OlfactoryFamily;
+      }
+    }
+    return 'TODAS';
+  });
+
+  // Sync state if URL search query changes
+  useEffect(() => {
+    if (familyFromUrl) {
+      const decoded = decodeURIComponent(familyFromUrl).toUpperCase();
+      if (
+        decoded === 'AMADERADO & ESPECIADO' ||
+        decoded === 'CÍTRICO & FLORAL BLANCO' ||
+        decoded === 'CUERO & RESINAS NOBLES'
+      ) {
+        setSelectedFamily(decoded as OlfactoryFamily);
+      } else if (decoded === 'TODAS') {
+        setSelectedFamily('TODAS');
+      }
+    }
+  }, [familyFromUrl]);
+
+  const handleSelectFamily = (family: OlfactoryFamily) => {
+    setSelectedFamily(family);
+    if (family === 'TODAS') {
+      searchParams.delete('familia');
+      setSearchParams(searchParams, { replace: true });
+    } else {
+      setSearchParams({ familia: family }, { replace: true });
+    }
+  };
 
   // Calculate dynamic category counts
   const familyCounts = useMemo(() => {
@@ -108,7 +150,7 @@ export const CatalogPage: React.FC = () => {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => setSelectedFamily(tab.id)}
+                onClick={() => handleSelectFamily(tab.id)}
                 className={`px-4 sm:px-5 py-2.5 rounded-full text-xs tracking-wider uppercase transition-all duration-200 cursor-pointer flex items-center gap-2 ${
                   isActive
                     ? 'bg-[#1A1918] text-[#FAF9F5] shadow-xs font-medium scale-[1.02]'
@@ -143,7 +185,7 @@ export const CatalogPage: React.FC = () => {
           onAddToCart={addToCart}
           onResetSearch={() => {
             clearSearch();
-            setSelectedFamily('TODAS');
+            handleSelectFamily('TODAS');
           }}
           isLoading={isLoading}
         />

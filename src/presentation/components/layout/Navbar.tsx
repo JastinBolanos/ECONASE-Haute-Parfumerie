@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, ShoppingBag, User } from 'lucide-react';
+import { Menu, ShoppingBag, User, Sparkles } from 'lucide-react';
 import { EconaseLogo } from '../brand/EconaseLogo';
 
 interface NavbarProps {
   onOpenSidebar: () => void;
+  onOpenWelcome?: () => void;
   cartCount: number;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar, cartCount }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar, onOpenWelcome, cartCount }) => {
   return (
     <header className="sticky top-0 z-30 bg-[#FAF9F5]/90 backdrop-blur-md border-b border-[#EAE5DC]">
       <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 h-16 flex items-center justify-between gap-4">
@@ -87,6 +88,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar, cartCount }) => {
               <User className="w-3.5 h-3.5" />
               <span>Mi Cuenta</span>
             </NavLink>
+
+            {onOpenWelcome && (
+              <button
+                id="navbar-welcome-trigger-btn"
+                type="button"
+                onClick={onOpenWelcome}
+                className="px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5 text-[#736A61] hover:text-[#1A1918] hover:bg-black/5 cursor-pointer"
+                title="Revivir experiencia de bienvenida"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#B89D77]" />
+                <span>Aura</span>
+              </button>
+            )}
           </nav>
 
           {/* Cart link to /home/bolsa */}
