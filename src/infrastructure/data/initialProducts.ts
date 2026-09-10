@@ -38,7 +38,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       base: 'Incienso sagrado, Resina de benjuí, Musgo de roble',
     },
     imageUrl:
-      'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1589782431327-ac8a63d965a2?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'vetiver-imperial',
