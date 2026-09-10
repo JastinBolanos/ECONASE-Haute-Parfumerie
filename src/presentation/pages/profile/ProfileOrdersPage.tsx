@@ -50,7 +50,7 @@ export const ProfileOrdersPage: React.FC = () => {
               to="/home"
               className="w-full sm:w-auto px-6 py-3.5 rounded-full border border-[#DDD7CD] text-[#1A1918] text-xs font-medium tracking-wider uppercase hover:bg-[#FAF9F5] transition-colors flex items-center justify-center gap-2"
             >
-              <span>Explorar 15 Fragancias</span>
+              <span>Explorar Fragancias</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

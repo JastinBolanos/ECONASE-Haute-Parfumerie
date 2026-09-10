@@ -40,7 +40,7 @@ export const CartPage: React.FC = () => {
             La bolsa está vacía
           </h2>
           <p className="text-xs sm:text-sm text-[#6B635A] mb-8 leading-relaxed">
-            Explore nuestra colección de 15 fragancias de autor y descubra su firma olfativa.
+            Explore nuestra colección de fragancias de autor y descubra su firma olfativa.
           </p>
           <Link
             to="/home"

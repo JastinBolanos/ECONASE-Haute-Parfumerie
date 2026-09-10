@@ -1,11 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-interface FooterProps {
-  onOpenWelcome?: () => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onOpenWelcome }) => {
+export const Footer: React.FC = () => {
   return (
     <footer id="main-footer" className="mt-auto border-t border-[#EAE5DC] bg-[#FAF9F5] py-10 px-4 sm:px-6">
       <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-[#80766D]">
@@ -44,15 +40,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenWelcome }) => {
           >
             Bolsa de Compras
           </Link>
-          {onOpenWelcome && (
-            <button
-              type="button"
-              onClick={onOpenWelcome}
-              className="hover:text-[#1A1918] transition-colors cursor-pointer"
-            >
-              Experiencia de Bienvenida
-            </button>
-          )}
         </nav>
 
         <p className="tracking-wider text-[11px]">

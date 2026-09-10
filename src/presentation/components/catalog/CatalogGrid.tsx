@@ -23,7 +23,7 @@ export const CatalogGrid: React.FC<CatalogGridProps> = ({
       <div className="w-full flex justify-center py-24">
         <div className="flex items-center gap-3 text-xs tracking-widest uppercase text-[#857B72]">
           <span className="w-2.5 h-2.5 rounded-full bg-[#1A1918] animate-ping" />
-          <span>Consultando catálogo de 15 fragancias de autor ECONASE...</span>
+          <span>Consultando catálogo de fragancias de autor ECONASE...</span>
         </div>
       </div>
     );

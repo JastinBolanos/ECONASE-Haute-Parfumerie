@@ -138,7 +138,7 @@ export const ProfileOverviewPage: React.FC = () => {
               to="/home"
               className="w-full sm:w-auto px-5 py-2.5 rounded-full border border-[#DDD7CD] text-[#1A1918] text-xs uppercase tracking-wider font-medium hover:bg-white transition-colors"
             >
-              Ver 15 Fragancias de Autor
+              Ver Fragancias de Autor
             </Link>
           </div>
         </div>

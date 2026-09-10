@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, ArrowRight, X, Volume2, VolumeX, Compass } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import { EconaseLogo } from '../brand/EconaseLogo';
 
 export type OlfactoryMoodId = 'madera' | 'floral' | 'cuero' | 'all';
@@ -80,44 +80,94 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isOpen, onClose }) => {
   const [selectedMoodId, setSelectedMoodId] = useState<OlfactoryMoodId>('madera');
-  const [activeNoteTab, setActiveNoteTab] = useState<'top' | 'heart' | 'base'>('heart');
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const soundEnabled = true;
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-  const [rememberChoice, setRememberChoice] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   const selectedMood = OLFACTORY_MOODS.find((m) => m.id === selectedMoodId) || OLFACTORY_MOODS[0];
 
-  // Subtle luxury harmonic chime using Web Audio API
-  const playHarmonicChime = (freq = 440) => {
+  // Friendly, soothing harmonic chime with gentle attack and warm acoustic timbre
+  const playFriendlyChime = (type: OlfactoryMoodId | 'tab' | 'enter' = 'floral') => {
     if (!soundEnabled) return;
     try {
       if (!audioCtxRef.current) {
-        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const AudioCtx =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
         audioCtxRef.current = new AudioCtx();
       }
       const ctx = audioCtxRef.current;
       if (ctx.state === 'suspended') {
         ctx.resume();
       }
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      const now = ctx.currentTime;
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 1.2);
+      // Gentle, friendly harmonic chord structures (soothing, warm, zen)
+      const notesMap: Record<string, Array<{ freq: number; delay: number; gain: number; duration?: number }>> = {
+        madera: [
+          { freq: 293.66, delay: 0, gain: 0.028 },      // D4 warm fundamental
+          { freq: 369.99, delay: 0.04, gain: 0.02 },   // F#4 warm third
+          { freq: 440.00, delay: 0.08, gain: 0.018 },  // A4 calming fifth
+        ],
+        floral: [
+          { freq: 329.63, delay: 0, gain: 0.028 },      // E4 bright warm root
+          { freq: 415.30, delay: 0.04, gain: 0.02 },   // G#4
+          { freq: 493.88, delay: 0.08, gain: 0.018 },  // B4 sparkling fifth
+        ],
+        cuero: [
+          { freq: 261.63, delay: 0, gain: 0.03 },      // C4 deep resonant root
+          { freq: 392.00, delay: 0.04, gain: 0.02 },   // G4 fifth
+          { freq: 523.25, delay: 0.08, gain: 0.016 },  // C5 octave
+        ],
+        all: [
+          { freq: 349.23, delay: 0, gain: 0.025 },
+          { freq: 440.00, delay: 0.04, gain: 0.02 },
+          { freq: 523.25, delay: 0.08, gain: 0.018 },
+        ],
+        tab: [
+          { freq: 440.00, delay: 0, gain: 0.018, duration: 0.8 },     // A4 soft tick
+          { freq: 554.37, delay: 0.03, gain: 0.014, duration: 0.8 }, // C#5 soft overtone
+        ],
+        enter: [
+          { freq: 329.63, delay: 0, gain: 0.028 },      // E4
+          { freq: 440.00, delay: 0.06, gain: 0.025 },  // A4
+          { freq: 554.37, delay: 0.12, gain: 0.022 },  // C#5
+          { freq: 659.25, delay: 0.18, gain: 0.018 },  // E5
+        ],
+      };
 
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
+      const notes = notesMap[type] || notesMap.floral;
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      // Soft lowpass filter to remove harsh digital high frequencies and give a warm, organic feel
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1600, now);
+      filter.Q.setValueAtTime(0.7, now);
+      filter.connect(ctx.destination);
 
-      osc.start();
-      osc.stop(ctx.currentTime + 1.2);
+      notes.forEach(({ freq, delay, gain, duration = 1.4 }) => {
+        const noteTime = now + delay;
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        // Warm pure sine tone
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, noteTime);
+
+        // Soft, gentle attack (35ms) to eliminate clicks, followed by smooth exponential decay
+        gainNode.gain.setValueAtTime(0.0001, noteTime);
+        gainNode.gain.exponentialRampToValueAtTime(gain, noteTime + 0.035);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, noteTime + duration);
+
+        osc.connect(gainNode);
+        gainNode.connect(filter);
+
+        osc.start(noteTime);
+        osc.stop(noteTime + duration + 0.05);
+      });
     } catch {
-      // Ignore audio failure if not allowed
+      // Audio safety fallback
     }
   };
 
@@ -131,34 +181,17 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isOpen, onClose })
 
   const handleSelectMood = (mood: OlfactoryMood) => {
     setSelectedMoodId(mood.id);
-    playHarmonicChime(mood.id === 'madera' ? 329.63 : mood.id === 'floral' ? 440 : 277.18);
+    playFriendlyChime(mood.id);
   };
 
   const handleEnterWithMood = () => {
-    playHarmonicChime(523.25);
-    if (rememberChoice) {
-      sessionStorage.setItem('econase_welcome_dismissed', 'true');
-    }
+    playFriendlyChime('enter');
     onClose(selectedMood.familyCategory);
-  };
-
-  const handleEnterAll = () => {
-    playHarmonicChime(440);
-    if (rememberChoice) {
-      sessionStorage.setItem('econase_welcome_dismissed', 'true');
-    }
-    onClose('TODAS');
-  };
-
-  const handleDismiss = () => {
-    if (rememberChoice) {
-      sessionStorage.setItem('econase_welcome_dismissed', 'true');
-    }
-    onClose();
   };
 
   // Lock body scroll when welcome screen is open
   useEffect(() => {
+    sessionStorage.removeItem('econase_welcome_dismissed');
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -192,81 +225,25 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isOpen, onClose })
             }}
           />
 
-          {/* Minimalist ornamental grid lines for luxury architectural framing */}
-          <div className="pointer-events-none fixed inset-0 opacity-[0.035] bg-[radial-gradient(#D1AF77_1px,transparent_1px)] [background-size:32px_32px]" />
+          {/* Luxury architectural framing ambient glow */}
+          <div className="pointer-events-none fixed inset-0 opacity-[0.035] bg-[radial-gradient(#D1AF77_1px,transparent_1px)] [background-size:36px_36px]" />
 
-          {/* Top Bar Navigation */}
-          <header className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 pt-6 sm:pt-8 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D1AF77] animate-pulse" />
-              <span className="text-[10px] sm:text-[11px] tracking-[0.3em] uppercase text-[#A89F91] font-light">
-                Atelier Parfumeur · Grasse & Madrid
-              </span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {/* Subtle Audio Ambient Chime Toggle */}
-              <button
-                id="welcome-audio-toggle"
-                type="button"
-                onClick={() => {
-                  const next = !soundEnabled;
-                  setSoundEnabled(next);
-                  if (next) playHarmonicChime(440);
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#2D2A26] bg-[#1A1816]/70 hover:border-[#D1AF77]/60 text-[#A69E92] hover:text-[#E8DFC8] transition-all text-[11px] tracking-wider uppercase cursor-pointer"
-                title={soundEnabled ? 'Silenciar atmósfera sonora' : 'Activar acordes sonoros'}
-                aria-label={soundEnabled ? 'Silenciar acordes' : 'Activar acordes'}
-              >
-                {soundEnabled ? (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 text-[#D1AF77]" />
-                    <span className="hidden sm:inline text-[10px]">Acordes Sonoros</span>
-                  </>
-                ) : (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline text-[10px]">Silencio</span>
-                  </>
-                )}
-              </button>
-
-              {/* Direct Skip Button */}
-              <button
-                id="welcome-skip-btn"
-                type="button"
-                onClick={handleDismiss}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[#A69E92] hover:text-[#FAF8F5] hover:bg-white/5 transition-colors text-xs tracking-wider uppercase cursor-pointer"
-                aria-label="Saltar bienvenida y explorar"
-              >
-                <span className="text-[11px]">Saltar</span>
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </header>
-
-          {/* Core Interactive Section */}
-          <main className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 py-8 sm:py-12 flex flex-col items-center justify-center text-center my-auto">
-            {/* Monogram emblem with glowing aura */}
+          {/* Core Interactive Section with expansive luxury layout */}
+          <main className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10 sm:py-16 flex flex-col items-center justify-center text-center my-auto">
+            {/* Clean brand presence with generous breathing room and luminous aura */}
             <motion.div
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              initial={{ y: -12, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="mb-5 flex flex-col items-center"
+              className="mb-8 sm:mb-12 flex flex-col items-center"
             >
-              <div className="relative mb-3">
+              <div className="relative flex items-center justify-center px-8 py-3">
                 <div
-                  className="absolute -inset-3 rounded-full blur-md opacity-40 transition-all duration-700"
+                  className="absolute inset-0 rounded-full blur-2xl opacity-25 pointer-events-none transition-all duration-700"
                   style={{ backgroundColor: selectedMood.accentColor }}
                 />
-                <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-[#3E3830] bg-[#171614] flex items-center justify-center shadow-2xl p-2.5">
-                  <EconaseLogo size="sm" variant="dark" />
-                </div>
+                <EconaseLogo size="lg" variant="dark" className="relative z-10 filter drop-shadow-[0_4px_24px_rgba(209,175,119,0.22)]" />
               </div>
-
-              <span className="text-[10px] sm:text-[11px] tracking-[0.45em] uppercase text-[#B5A996] font-medium block">
-                Haute Parfumerie · Édition MMXXVI
-              </span>
             </motion.div>
 
             {/* Main Luxury Title */}
@@ -274,7 +251,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isOpen, onClose })
               initial={{ y: 15, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.15 }}
-              className="font-serif-luxury text-3xl sm:text-5xl md:text-6xl font-normal tracking-tight text-[#FAF8F5] mb-4 max-w-3xl leading-[1.12]"
+              className="font-serif-luxury text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-normal tracking-tight text-[#FAF8F5] mb-5 max-w-5xl leading-[1.1]"
             >
               El arte de habitar tu propia memoria
             </motion.h1>
@@ -283,31 +260,24 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isOpen, onClose })
             <motion.p
               initial={{ y: 15, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.25 }}
-              className="text-sm sm:text-base text-[#B0A799] font-light max-w-xl mx-auto leading-relaxed mb-8 sm:mb-10 font-serif italic"
+              transition={{ duration: 0.8, delay: 0.22 }}
+              className="text-base sm:text-lg md:text-xl text-[#BDB4A5] font-light max-w-3xl mx-auto leading-relaxed mb-10 sm:mb-14 font-serif italic"
             >
-              «Quince extracciones botánicas raras maceradas pacientemente en cristal. Selecciona la atmósfera olfativa que deseas iniciar.»
+              «Extracciones botánicas puras maceradas pacientemente en cristal. Selecciona la atmósfera olfativa con la que deseas iniciar tu recorrido.»
             </motion.p>
 
-            {/* Interactive Olfactory Mood Selector (Three Pillars) */}
+            {/* Expansive Olfactory Mood Grid (Three Pillars) */}
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.35 }}
-              className="w-full mb-8"
+              transition={{ duration: 0.8, delay: 0.32 }}
+              className="w-full max-w-6xl mx-auto mb-10 sm:mb-14"
             >
-              <div className="text-center mb-3">
-                <span className="text-[11px] tracking-[0.25em] uppercase text-[#8F8677] font-medium flex items-center justify-center gap-2">
-                  <Compass className="w-3.5 h-3.5 text-[#D1AF77]" />
-                  Elige tu Acorde de Entrada
-                </span>
-              </div>
-
               <div
                 id="olfactory-mood-grid"
                 role="radiogroup"
-                aria-label="Selección de acorde de fragancia"
-                className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto text-left"
+                aria-label="Selección de atmósfera olfativa"
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 text-left"
               >
                 {OLFACTORY_MOODS.map((mood) => {
                   const isSelected = selectedMoodId === mood.id;
@@ -319,43 +289,79 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isOpen, onClose })
                       role="radio"
                       aria-checked={isSelected}
                       onClick={() => handleSelectMood(mood)}
-                      className={`relative p-4 sm:p-5 rounded-xl transition-all duration-300 cursor-pointer flex flex-col justify-between group overflow-hidden border ${
+                      className={`relative p-6 sm:p-7 lg:p-8 rounded-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between group overflow-hidden border text-left ${
                         isSelected
-                          ? 'bg-[#1D1B18] border-[#D1AF77] shadow-[0_0_24px_rgba(209,175,119,0.14)] scale-[1.01]'
-                          : 'bg-[#161513]/80 border-[#2E2B26] hover:border-[#524B40] hover:bg-[#1A1816]'
+                          ? 'bg-[#1C1A17] border-[#D1AF77] shadow-[0_0_36px_rgba(209,175,119,0.18)] scale-[1.02]'
+                          : 'bg-[#151412]/90 border-[#2D2A25] hover:border-[#524B40] hover:bg-[#1A1816]'
                       }`}
                     >
-                      {/* Active indicator bead */}
-                      <div className="flex items-center justify-between w-full mb-2.5">
-                        <span
-                          className="text-[10px] tracking-[0.25em] uppercase font-serif-luxury"
-                          style={{ color: mood.accentColor }}
-                        >
-                          {mood.subtitle}
-                        </span>
-                        <div
-                          className={`w-2 h-2 rounded-full transition-all ${
-                            isSelected ? 'scale-125' : 'opacity-25'
-                          }`}
-                          style={{ backgroundColor: mood.accentColor }}
-                        />
+                      {/* Top category row & status indicator */}
+                      <div>
+                        <div className="flex items-center justify-between w-full mb-3">
+                          <span
+                            className="text-[11px] sm:text-xs tracking-[0.25em] uppercase font-serif-luxury font-medium"
+                            style={{ color: mood.accentColor }}
+                          >
+                            {mood.familyCategory}
+                          </span>
+                          <div
+                            className={`w-2.5 h-2.5 rounded-full transition-all ${
+                              isSelected ? 'scale-125 shadow-[0_0_10px_currentColor]' : 'opacity-25'
+                            }`}
+                            style={{ backgroundColor: mood.accentColor }}
+                          />
+                        </div>
+
+                        <h2 className="font-serif-luxury text-2xl sm:text-3xl font-medium text-[#FAF8F5] mb-2 group-hover:text-white transition-colors">
+                          {mood.title}
+                        </h2>
+
+                        <p className="text-xs sm:text-sm text-[#A89F91] leading-relaxed mb-6 font-light">
+                          {mood.tagline}
+                        </p>
+
+                        {/* Pyramid notes preview for olfactory depth */}
+                        <div className="space-y-2 py-3.5 border-y border-[#282521] text-xs">
+                          <div className="flex items-start gap-2">
+                            <span className="text-[10px] uppercase tracking-wider text-[#736B5E] w-14 shrink-0 pt-0.5">
+                              Salida
+                            </span>
+                            <span className="text-[#D6CEC2] font-serif truncate">
+                              {mood.notes.top}
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-[10px] uppercase tracking-wider text-[#736B5E] w-14 shrink-0 pt-0.5">
+                              Fondo
+                            </span>
+                            <span className="text-[#D6CEC2] font-serif truncate">
+                              {mood.notes.base}
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
-                      <h2 className="font-serif-luxury text-lg sm:text-xl font-medium text-[#FAF8F5] mb-1.5 group-hover:text-white">
-                        {mood.title}
-                      </h2>
-
-                      <p className="text-xs text-[#9E9587] leading-relaxed line-clamp-2 mb-3">
-                        {mood.tagline}
-                      </p>
-
-                      <div className="pt-2.5 border-t border-[#292622] flex items-center justify-between text-[11px] text-[#7A7265]">
-                        <span className="font-serif italic truncate pr-2">
-                          {mood.notes.base.split(',')[0]}
+                      {/* Bottom row: Maceration method & selection state */}
+                      <div className="pt-4 mt-4 flex items-center justify-between text-xs text-[#82786B]">
+                        <span className="text-[11px] font-serif italic truncate pr-2 text-[#9E9484]">
+                          {mood.maceration}
                         </span>
-                        <span className="text-[10px] uppercase tracking-wider text-[#A69C8C] shrink-0 font-medium">
-                          {isSelected ? 'Seleccionado' : 'Explorar'}
-                        </span>
+                        <div
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] tracking-wider uppercase font-medium transition-all ${
+                            isSelected
+                              ? 'bg-[#D1AF77]/20 text-[#EBD9BA] border border-[#D1AF77]/50'
+                              : 'text-[#82786B] group-hover:text-[#B5AB9B]'
+                          }`}
+                        >
+                          {isSelected ? (
+                            <>
+                              <Check className="w-3 h-3 text-[#D1AF77]" />
+                              <span>Elegido</span>
+                            </>
+                          ) : (
+                            <span>Elegir</span>
+                          )}
+                        </div>
                       </div>
                     </button>
                   );
@@ -363,139 +369,32 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isOpen, onClose })
               </div>
             </motion.div>
 
-            {/* Interactive Note Harmonizer Preview */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.45 }}
-              className="w-full max-w-2xl bg-[#171513]/90 border border-[#2D2A25] rounded-xl p-4 sm:p-5 mb-8 text-left relative overflow-hidden"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2.5 border-b border-[#26231F]">
-                <div>
-                  <span className="text-[10px] tracking-[0.2em] uppercase text-[#8C8375] font-medium block">
-                    Alquimia Olfativa de {selectedMood.title}
-                  </span>
-                  <p className="text-xs font-serif italic text-[#D1AF77] mt-0.5">
-                    {selectedMood.quote}
-                  </p>
-                </div>
-
-                {/* Note Stage Tabs: Salida / Corazón / Fondo */}
-                <div className="flex items-center gap-1 bg-[#11100F] p-1 rounded-lg border border-[#2D2A26] self-start sm:self-auto shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveNoteTab('top');
-                      playHarmonicChime(587.33);
-                    }}
-                    className={`px-2.5 py-1 rounded text-[10px] tracking-wider uppercase transition-colors cursor-pointer ${
-                      activeNoteTab === 'top'
-                        ? 'bg-[#292621] text-[#FAF8F5] font-semibold'
-                        : 'text-[#7D7569] hover:text-[#B5AC9E]'
-                    }`}
-                  >
-                    Salida
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveNoteTab('heart');
-                      playHarmonicChime(440);
-                    }}
-                    className={`px-2.5 py-1 rounded text-[10px] tracking-wider uppercase transition-colors cursor-pointer ${
-                      activeNoteTab === 'heart'
-                        ? 'bg-[#292621] text-[#FAF8F5] font-semibold'
-                        : 'text-[#7D7569] hover:text-[#B5AC9E]'
-                    }`}
-                  >
-                    Corazón
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveNoteTab('base');
-                      playHarmonicChime(329.63);
-                    }}
-                    className={`px-2.5 py-1 rounded text-[10px] tracking-wider uppercase transition-colors cursor-pointer ${
-                      activeNoteTab === 'base'
-                        ? 'bg-[#292621] text-[#FAF8F5] font-semibold'
-                        : 'text-[#7D7569] hover:text-[#B5AC9E]'
-                    }`}
-                  >
-                    Fondo
-                  </button>
-                </div>
-              </div>
-
-              {/* Active Note Content */}
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex-1">
-                  <span className="text-[10px] uppercase tracking-wider text-[#A89F90] block mb-1">
-                    {activeNoteTab === 'top' && 'Notas de Cabeza (Primeros 15 minutos)'}
-                    {activeNoteTab === 'heart' && 'Cuerpo & Rastro Olfativo (2 a 6 horas)'}
-                    {activeNoteTab === 'base' && 'Acorde de Fijación & Memoria (+12 horas)'}
-                  </span>
-                  <p className="text-sm text-[#EBE6DC] font-medium font-serif">
-                    {selectedMood.notes[activeNoteTab]}
-                  </p>
-                </div>
-                <div className="hidden sm:block text-right shrink-0">
-                  <span className="text-[10px] uppercase tracking-wider text-[#696257] block">
-                    Método
-                  </span>
-                  <span className="text-[11px] text-[#A69C8E]">
-                    {selectedMood.maceration}
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Action Buttons */}
+            {/* Action Button */}
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.55 }}
-              className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto"
+              transition={{ duration: 0.8, delay: 0.42 }}
+              className="flex items-center justify-center w-full sm:w-auto"
             >
-              {/* Enter with selected mood */}
               <button
                 id="enter-with-mood-btn"
                 type="button"
                 onClick={handleEnterWithMood}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#FAF8F5] text-[#141312] hover:bg-[#EBE5DA] transition-all duration-200 font-medium text-xs sm:text-sm tracking-widest uppercase cursor-pointer flex items-center justify-center gap-2.5 shadow-lg group hover:scale-[1.02]"
+                className="w-full sm:w-auto px-12 py-4.5 rounded-full bg-[#FAF8F5] text-[#141312] hover:bg-[#EBE5DA] transition-all duration-300 font-medium text-xs sm:text-sm tracking-[0.25em] uppercase cursor-pointer flex items-center justify-center gap-3 shadow-[0_10px_35px_rgba(0,0,0,0.5)] group hover:scale-[1.02]"
               >
                 <span>Entrar con {selectedMood.title}</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-
-              {/* Enter and explore all */}
-              <button
-                id="enter-all-collection-btn"
-                type="button"
-                onClick={handleEnterAll}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-full border border-[#3E3A33] hover:border-[#D1AF77] text-[#D4CDC1] hover:text-[#FAF8F5] hover:bg-[#1A1816] transition-all duration-200 text-xs sm:text-sm tracking-widest uppercase cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#D1AF77]" />
-                <span>Explorar las 15 Fragancias</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
               </button>
             </motion.div>
           </main>
 
           {/* Minimalist Luxury Footer */}
-          <footer className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 pb-6 sm:pb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#756E63] border-t border-[#23201C] pt-5">
-            {/* Session remember checkbox */}
-            <label className="flex items-center gap-2.5 cursor-pointer text-[11px] text-[#8C8375] hover:text-[#B8AF9F] transition-colors">
-              <input
-                id="remember-welcome-choice"
-                type="checkbox"
-                checked={rememberChoice}
-                onChange={(e) => setRememberChoice(e.target.checked)}
-                className="w-3.5 h-3.5 rounded border-[#38332B] bg-[#171513] text-[#D1AF77] focus:ring-0 focus:outline-none cursor-pointer"
-              />
-              <span>No volver a mostrar en esta sesión de navegación</span>
-            </label>
+          <footer className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pb-6 sm:pb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#756E63] border-t border-[#23201C] pt-6">
+            <span className="text-[11px] text-[#A69C8E] tracking-wider uppercase">
+              Alta Perfumería de Autor · Maceración en Frío
+            </span>
 
-            <div className="flex items-center gap-4 text-[11px] tracking-wider uppercase">
+            <div className="flex items-center gap-4 text-[11px] tracking-wider uppercase text-[#8C8375]">
               <span>Frascos Recargables de 100 ML</span>
               <span>·</span>
               <span>Edición Limitada</span>

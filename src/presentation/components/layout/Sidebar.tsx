@@ -7,10 +7,9 @@ import { EconaseLogo } from '../brand/EconaseLogo';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenWelcome?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenWelcome }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const mainNavItems = [
     {
       label: 'Catálogo de Fragancias',
@@ -154,28 +153,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenWelcome
                     </NavLink>
                   );
                 })}
-
-                {onOpenWelcome && (
-                  <button
-                    id="sidebar-welcome-btn"
-                    type="button"
-                    onClick={onOpenWelcome}
-                    className="w-full flex items-start gap-3.5 p-3 rounded-xl transition-all duration-150 group text-left hover:bg-white/60 text-[#4D463F] hover:text-[#1A1918] cursor-pointer"
-                  >
-                    <div className="p-1.5 rounded-lg bg-[#FAF8F5] border border-[#E8E2D7] text-[#B89D77] group-hover:scale-105 transition-transform mt-0.5">
-                      <Sparkles className="w-4 h-4" strokeWidth={1.75} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="font-serif-luxury text-sm font-medium block text-[#1A1918]">
-                        Aura & Bienvenida
-                      </span>
-                      <span className="text-[11px] text-[#7A726A] line-clamp-1">
-                        Experiencia inmersiva y acordes
-                      </span>
-                    </div>
-                    <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity self-center text-[#8C827A]" />
-                  </button>
-                )}
               </nav>
             </div>
 

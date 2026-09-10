@@ -1,20 +1,20 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, ShoppingBag, User, Sparkles } from 'lucide-react';
+import { Menu, ShoppingBag, User } from 'lucide-react';
 import { EconaseLogo } from '../brand/EconaseLogo';
 
 interface NavbarProps {
   onOpenSidebar: () => void;
-  onOpenWelcome?: () => void;
   cartCount: number;
+  onOpenWelcome?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar, onOpenWelcome, cartCount }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar, cartCount, onOpenWelcome }) => {
   return (
-    <header className="sticky top-0 z-30 bg-[#FAF9F5]/90 backdrop-blur-md border-b border-[#EAE5DC]">
+    <header className="relative sticky top-0 z-30 bg-[#FAF9F5]/90 backdrop-blur-md border-b border-[#EAE5DC]">
       <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 h-16 flex items-center justify-between gap-4">
         {/* Left: Button to open sidebar */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 z-10">
           <button
             id="open-sidebar-btn"
             type="button"
@@ -29,23 +29,25 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar, onOpenWelcome, ca
           </button>
         </div>
 
-        {/* Center: Brand logo linking to /home */}
-        <div className="flex items-center justify-center">
-          <Link
-            to="/home"
+        {/* Center: Brand logo placed in the exact middle of the screen - opens welcome on click */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-auto">
+          <button
+            type="button"
             id="brand-header-link"
-            className="flex flex-col items-center group py-1"
-            aria-label="ECONASE - Ir al inicio"
+            onClick={onOpenWelcome}
+            className="flex flex-col items-center group py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A1918]/20 rounded-md"
+            aria-label="ECONASE - Abrir experiencia de bienvenida"
+            title="Volver a la bienvenida interactiva"
           >
-            <span id="brand-header-title" className="m-0 flex items-center">
+            <span id="brand-header-title" className="m-0 flex items-center transition-transform duration-200 group-hover:scale-[1.03]">
               <EconaseLogo size="md" variant="light" />
               <span className="sr-only">ECONASE</span>
             </span>
-          </Link>
+          </button>
         </div>
 
         {/* Right: Main navigation links on desktop + Cart */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 z-10">
           {/* Main sections for quick access on desktop */}
           <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-1 text-xs tracking-widest uppercase text-[#6B635A]">
             <NavLink
@@ -88,19 +90,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar, onOpenWelcome, ca
               <User className="w-3.5 h-3.5" />
               <span>Mi Cuenta</span>
             </NavLink>
-
-            {onOpenWelcome && (
-              <button
-                id="navbar-welcome-trigger-btn"
-                type="button"
-                onClick={onOpenWelcome}
-                className="px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5 text-[#736A61] hover:text-[#1A1918] hover:bg-black/5 cursor-pointer"
-                title="Revivir experiencia de bienvenida"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#B89D77]" />
-                <span>Aura</span>
-              </button>
-            )}
           </nav>
 
           {/* Cart link to /home/bolsa */}

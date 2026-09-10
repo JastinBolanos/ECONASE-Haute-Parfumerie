@@ -115,7 +115,7 @@ export const CatalogPage: React.FC = () => {
           Colección de Alta Perfumería
         </span>
         <h1 className="font-serif-luxury text-3xl sm:text-5xl lg:text-6xl font-light text-[#1A1918] tracking-tight mb-4">
-          15 Esencias de Autor y Alquimia Natural
+          Esencias de Autor y Alquimia Natural
         </h1>
         <p className="text-sm sm:text-base text-[#5C544C] leading-relaxed max-w-3xl mx-auto font-light">
           Tres familias olfativas puras, concebidas con extractos botánicos raros de origen ético, maceradas durante noventa días en barricas de cristal y embotelladas a mano en frascos pesados de 100 ML.
@@ -151,22 +151,13 @@ export const CatalogPage: React.FC = () => {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => handleSelectFamily(tab.id)}
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs tracking-wider uppercase transition-all duration-200 cursor-pointer flex items-center gap-2 ${
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs tracking-wider uppercase transition-all duration-200 cursor-pointer flex items-center justify-center ${
                   isActive
                     ? 'bg-[#1A1918] text-[#FAF9F5] shadow-xs font-medium scale-[1.02]'
                     : 'bg-white border border-[#DDD6CB] text-[#59524A] hover:border-[#1A1918] hover:text-[#1A1918]'
                 }`}
               >
                 <span>{tab.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    isActive
-                      ? 'bg-white/20 text-white'
-                      : 'bg-[#F4F1EA] text-[#786F66]'
-                  }`}
-                >
-                  ({tab.count})
-                </span>
               </button>
             );
           })}

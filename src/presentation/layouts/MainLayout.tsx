@@ -9,10 +9,7 @@ import { useCart } from '../hooks/useCart';
 
 export const MainLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(() => {
-    // Open on initial visit if not dismissed in current session
-    return !sessionStorage.getItem('econase_welcome_dismissed');
-  });
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
   const { cartCount } = useCart();
   const navigate = useNavigate();
 
@@ -40,17 +37,13 @@ export const MainLayout: React.FC = () => {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        onOpenWelcome={() => {
-          setIsSidebarOpen(false);
-          setIsWelcomeOpen(true);
-        }}
       />
 
       {/* Top navigation */}
       <Navbar
         onOpenSidebar={() => setIsSidebarOpen(true)}
-        onOpenWelcome={() => setIsWelcomeOpen(true)}
         cartCount={cartCount}
+        onOpenWelcome={() => setIsWelcomeOpen(true)}
       />
 
       {/* Route Outlet */}
@@ -59,7 +52,7 @@ export const MainLayout: React.FC = () => {
       </main>
 
       {/* Minimal Footer */}
-      <Footer onOpenWelcome={() => setIsWelcomeOpen(true)} />
+      <Footer />
     </div>
   );
 };
