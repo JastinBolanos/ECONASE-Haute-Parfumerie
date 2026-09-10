@@ -10,7 +10,7 @@
 
 🌍 **View Live Platform (Production) 🟢** *https://econase.vercel.app/*
 
-![ECONASE Boutique Preview](https://github.com/user-attachments/assets/8398953a-7ea0-4bee-a4f7-b97c20b9c07e)
+![ECONASE Boutique Preview](https://github.com/user-attachments/assets/3091c099-7ef8-4c4e-bc25-c08167cfd3f7)
 
 ---
 
@@ -19,7 +19,7 @@
 **🎬 Collection Exploration & Sensory Sommelier**  
 Boutique interface demonstration: smooth navigation across olfactory families, interactive inspection of top, heart, and base notes, bespoke artisanal bottle engraving personalization, and instant shopping bag management with complimentary discovery samples.
 
-[link goes here]
+https://github.com/user-attachments/assets/884da602-334c-44bd-86a2-124b4b3a9f3b
 
 ---
 
