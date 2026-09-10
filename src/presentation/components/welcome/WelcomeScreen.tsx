@@ -382,7 +382,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isOpen, onClose })
                 onClick={handleEnterWithMood}
                 className="w-full sm:w-auto px-12 py-4.5 rounded-full bg-[#FAF8F5] text-[#141312] hover:bg-[#EBE5DA] transition-all duration-300 font-medium text-xs sm:text-sm tracking-[0.25em] uppercase cursor-pointer flex items-center justify-center gap-3 shadow-[0_10px_35px_rgba(0,0,0,0.5)] group hover:scale-[1.02]"
               >
-                <span>Entrar con {selectedMood.title}</span>
+                <span>Ingresar</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
               </button>
             </motion.div>
