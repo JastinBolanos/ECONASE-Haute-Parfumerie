@@ -19,7 +19,7 @@
 **🎬 Collection Exploration & Sensory Sommelier**  
 Boutique interface demonstration: smooth navigation across olfactory families, interactive inspection of top, heart, and base notes, bespoke artisanal bottle engraving personalization, and instant shopping bag management with complimentary discovery samples.
 
-https://github.com/user-attachments/assets/884da602-334c-44bd-86a2-124b4b3a9f3b
+https://github.com/user-attachments/assets/c82c4a30-941c-4b00-bbea-bd40a7af1d35
 
 ---
 
