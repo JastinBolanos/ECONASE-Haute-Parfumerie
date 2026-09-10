@@ -8,9 +8,9 @@
 > **Digital Boutique and Sensory Experience for Artisanal Haute Parfumerie.**  
 > High-end e-commerce platform designed for curating, discovering, and acquiring exclusive niche fragrances from *ECONASE*. The system combines an editorial, minimalist visual experience with an interactive olfactory sommelier, three-stage fragrance pyramid breakdown, and a smooth, secure shopping experience.
 
-🌍 **[View Live Platform (Production) 🟢]** *[link goes here]*
+🌍 **View Live Platform (Production) 🟢** *https://econase.vercel.app/*
 
-![ECONASE Boutique Preview]([link goes here])
+![ECONASE Boutique Preview](https://github.com/user-attachments/assets/8398953a-7ea0-4bee-a4f7-b97c20b9c07e)
 
 ---
 
